@@ -29,7 +29,6 @@ char* g_StringBuffer = nullptr;
 
 OVR_PUBLIC_FUNCTION(ovrResult) ovr_Initialize(const ovrInitParams* params)
 {
-	MH_QueueDisableHook(GetProcAddress);
 	MH_QueueDisableHook(LoadLibraryW);
 	MH_QueueDisableHook(OpenEventW);
 	MH_ApplyQueued();
@@ -786,8 +785,8 @@ OVR_PUBLIC_FUNCTION(ovrSizei) ovr_GetFovTextureSize(ovrSession session, ovrEyeTy
 	float vMax = 0.5f - 0.5f * top / fov.UpTan;
 
 	// Grow the recommended size to account for the overlapping fov
-	size.w = int(size.w / (uMax - uMin));
-	size.h = int(size.h / (vMax - vMin));
+	size.w = int((size.w * pixelsPerDisplayPixel) / (uMax - uMin));
+	size.h = int((size.h * pixelsPerDisplayPixel) / (vMax - vMin));
 
 	return size;
 }
@@ -898,7 +897,6 @@ OVR_PUBLIC_FUNCTION(ovrResult) ovr_SubmitFrame(ovrSession session, long long fra
 		for (int i = 0; i < ovrEye_Count; i++)
 		{
 			ovrTextureSwapChain chain = sceneLayer->ColorTexture[i];
-			session->ColorTexture[i] = chain;
 			vr::VRTextureBounds_t bounds = REV_ViewportToTextureBounds(sceneLayer->Viewport[i], sceneLayer->ColorTexture[i], sceneLayer->Header.Flags);
 
 			float left, right, top, bottom;

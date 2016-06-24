@@ -63,6 +63,7 @@ Section "Revive" SecRevive
   
   DetailPrint "Terminating dashboard overlay..."
   nsExec::ExecToLog '"taskkill" /F /IM ReviveOverlay.exe'
+  Sleep 2000 ; give 2 seconds for the application to finish exiting
   
   SetOutPath "$INSTDIR"
   
@@ -75,6 +76,7 @@ Section "Revive" SecRevive
   
   ; Create an empty manifest file
   FileOpen $0 "$INSTDIR\revive.vrmanifest" w
+  FileWrite $0 ""
   FileClose $0
   
   ; Ensure all users have access to the manifest file
@@ -84,10 +86,6 @@ Section "Revive" SecRevive
   
   ; Install redistributable
   ExecWait '"$INSTDIR\vcredist_x64.exe" /install /quiet'
-  
-  ; Reboot the Oculus service to prevent entitlement checks failing
-  ExecWait "OVRServiceLauncher -stop"
-  ExecWait "OVRServiceLauncher -start"
   
   ; Execute the dashboard overlay with unelevated permissions
   ; This ensures we don't start the OpenVR server with admin permissions
@@ -117,6 +115,7 @@ Section "Uninstall"
 
   DetailPrint "Terminating dashboard overlay..."
   nsExec::ExecToLog '"taskkill" /F /IM ReviveOverlay.exe'
+  Sleep 2000 ; give 2 seconds for the application to finish exiting
 
   RMDir /r "$INSTDIR"
   
